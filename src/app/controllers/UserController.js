@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import User from '../models/User';
+import File from '../models/File';
 
 class UserController {
   async store(req, res) {
@@ -72,9 +73,19 @@ class UserController {
       return res.status(401).json({ error: 'Senhas não conferem' });
     }
 
-    const { id, name, provider } = await user.update(req.body);
+    await user.update(req.body);
 
-    return res.json({ id, name, email, provider });
+    const { id, name, avatar } = await User.findByPk(req.UserId, {
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
+
+    return res.json({ id, name, email, avatar });
   }
 }
 
